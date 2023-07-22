@@ -1,0 +1,4 @@
+numexpr>=2.7.3
+pandas>=2.0.3, <3.0.0
+matplotlib>=3.3.4, <4.0.0
+daemonize>=2.5.0, <3.0.0
