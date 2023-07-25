@@ -55,11 +55,10 @@ class pressure_cpu(ProcTracerBase):
             
             axs[0].plot(x, label= (x.columns if len(x.columns)>1 else x.columns[0]) )
             axs[0].legend(title="some", fontsize='small', loc= 'upper right')
-            axs[0].set_xlabel('Time t [s]')
             axs[0].set_ylabel('Some Stall Time [%]')
             axs[0].grid()
             axs[0].set_xlim(0,maxT)
-            axs[0].set_ylim(0,None)
+            axs[0].set_ylim(0,105.0)
 
             x=pivot_table.xs(axis=1, level=1, key="full")
 
@@ -69,7 +68,7 @@ class pressure_cpu(ProcTracerBase):
             axs[1].set_ylabel('Full Stall Time [%]')
             axs[1].grid()
             axs[1].set_xlim(0,maxT)
-            axs[1].set_ylim(0,None)
+            axs[1].set_ylim(0,105.0)
 
         pdf.savefig(fig)
 

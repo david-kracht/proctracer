@@ -52,11 +52,10 @@ class stat(ProcTracerBase):
             ######### Overall
             axs[0].plot( pivot_table[['cpu']].dropna() *100, label='cpu' )
             axs[0].legend(fontsize='small', loc= 'upper right')
-            axs[0].set_xlabel('Time t [s]')
             axs[0].set_ylabel('CPU Load [%]')
             axs[0].grid()
             axs[0].set_xlim(0,maxT)
-            axs[0].set_ylim(0,None)
+            axs[0].set_ylim(0,105.0)
 
             ######### Isolated
             for i in pivot_table.columns:
@@ -68,6 +67,6 @@ class stat(ProcTracerBase):
             axs[1].set_ylabel('CPU Loads [%]')
             axs[1].grid()
             axs[1].set_xlim(0,maxT)
-            axs[1].set_ylim(0,None)
+            axs[1].set_ylim(0,105.0)
 
         pdf.savefig(fig)

@@ -22,11 +22,20 @@ class net_snmp_udp(ProcTracerBase):
                 self.key : k,
                 'time': entry['time'],
                 'InDatagrams': int(entry['InDatagrams']),
+                'NoPorts': int(entry['NoPorts']),
                 'InErrors': int(entry['InErrors']),
                 'RcvbufErrors': int(entry['RcvbufErrors']),
                 'OutDatagrams': int(entry['OutDatagrams']),
                 'SndbufErrors': int(entry['SndbufErrors']),
-                 }
+                'InSum' : int(entry['InDatagrams']) + int(entry['InErrors']),
+                'InErrorRate' : 0.0
+                }
+                 
+            if k in self.sample_old:
+                if new_sample[k]['InSum'] != self.sample_old[k]['InSum']:
+                    new_sample[k]['InErrorRate'] = 1.0*( new_sample[k]['InErrors'] - self.sample_old[k]['InErrors'] ) / ( new_sample[k]['InSum'] - self.sample_old[k]['InSum'] )      
+                 
+                 
         return new_sample
 
     def add_diagrams(self, pdf, maxT):
@@ -45,12 +54,12 @@ class net_snmp_udp(ProcTracerBase):
             del self.data_frame[self.key]
 
             ######### Ratio 1
-            x=self.data_frame[["InErrors","RcvbufErrors"]].div(self.data_frame.InDatagrams, axis=0) # relative count wrt. start time
+            #x=self.data_frame[["InErrors","RcvbufErrors"]].div(self.data_frame.InDatagrams, axis=0) # relative count wrt. start time
+            x=self.data_frame[["InErrorRate"]] # 
 
-            axs[1].plot( x *100.0, label= x.columns)
+            axs[1].plot( x *100.0, label= "InErrorRate")
             axs[1].legend()
                 
-            axs[1].set_xlabel('Time t [s]')
             axs[1].set_ylabel('Ratio [%]')
             axs[1].grid()
             axs[1].set_xlim(0,maxT)
@@ -62,7 +71,6 @@ class net_snmp_udp(ProcTracerBase):
             axs[2].plot( x *100.0 , label= "SndbufErrors")
             axs[2].legend()
                 
-            axs[2].set_xlabel('Time t [s]')
             axs[2].set_ylabel('Ratio [%]')
             axs[2].grid()
             axs[2].set_xlim(0,maxT)
@@ -74,12 +82,9 @@ class net_snmp_udp(ProcTracerBase):
             axs[0].plot( self.data_frame , label= self.data_frame.columns)
             axs[0].legend()
                 
-            axs[0].set_xlabel('Time t [s]')
             axs[0].set_ylabel('Datagrams [count]')
             axs[0].grid()
             axs[0].set_xlim(0,maxT)
             axs[0].set_ylim(0,None)
-
-
 
         pdf.savefig(fig)

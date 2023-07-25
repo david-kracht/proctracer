@@ -1,5 +1,6 @@
 import os
 import glob
+import re
 
 from matplotlib import pyplot as plt
 
@@ -22,10 +23,15 @@ class pid_stat(ProcTracerBase):
         self.new_pid_map = {}
         self.parent_pid = os.getppid()
         self.blacklist_cmd_patterns='sleep'.split()
+    
+    def pre_parsing_step(self, line):
+        # remove cells with blanks, i.e. "comm" field
+        return re.sub(r'\(.*?\)', '()', line)
 
     def mapper(self, sample):
         new_sample={}
         for k, entry in sample.items():
+        
             k=int(k) #new key
             new_sample[k] = {
                 self.key : k,
@@ -82,7 +88,7 @@ class pid_stat(ProcTracerBase):
             if sub_sample:
             
                 sub_sample = self.mapper(sub_sample)
-                
+
                 #if sub_sample[pid]["session"] != self.parent_pid:
                 #    continue
 
@@ -103,8 +109,7 @@ class pid_stat(ProcTracerBase):
         cm = 1/2.54                                         # centimeters in inches
         fig, axs = plt.subplots(2, dpi=72, figsize=(29.7*cm,21.0*cm))   # for landscape DIN A4
 
-        #fig.suptitle('%s' % self.file )
-        fig.suptitle('%s' % self.parent_pid )
+        fig.suptitle('%s' % self.file )
 
         if not self.data_frame.empty:
 
@@ -120,12 +125,11 @@ class pid_stat(ProcTracerBase):
                     continue
 
                 axs[0].plot( pivot_table_1[[i]].dropna() * 100.0, label="%s/%s/%s : %s" % (i,self.new_pid_map[i]['ppid'],self.new_pid_map[i]['pgrp'], self.new_pid_map[i]['cmdline'][0:99] ) )
-                axs[0].set_xlabel("Time t [s]")
                 axs[0].set_ylabel("Process Load [%]")
                 axs[0].legend(title="pid/ppid/pgrp: cmdline", fontsize='xx-small', loc= 'upper right')
                 axs[0].grid()
                 axs[0].set_xlim(0,maxT)
-                axs[0].set_ylim(0,None)
+                axs[0].set_ylim(0,105.0)
 
                 MB_per_page =  0.000001 * PAGESIZE
 
@@ -134,6 +138,6 @@ class pid_stat(ProcTracerBase):
                 axs[1].set_ylabel("Process Memory [MB]")
                 axs[1].grid()
                 axs[1].set_xlim(0,maxT)
-                axs[1].set_ylim(0,None)
+                axs[1].set_ylim(0,105.0)
 
         pdf.savefig(fig)

@@ -77,7 +77,10 @@ class ProcTracerBase(PluginBase):
             return result
 
         return result
-
+    
+    def pre_parsing_step(self, line):
+        return line
+    
     def parser(self, file):
         sample={}
 
@@ -97,6 +100,8 @@ class ProcTracerBase(PluginBase):
                             break
 
                 if to_be_collected:
+                    line=self.pre_parsing_step(line)
+                    
                     entry = { k: v for k, v in zip(self.header_in, line.split() ) }
                     entry['time']= t
                     sample[entry[self.key]] = entry

@@ -31,7 +31,7 @@ pid_path: ~/proctracer.pid
 plugins:
     text_pipe:
         active: true
-        period: 0.05
+        period: 0.1
     pressure_cpu:
         active: true
         period: 0.5
@@ -43,21 +43,21 @@ plugins:
         period: 0.5
     stat:
         active: true
-        period: 2.0
+        period: 5.0
     pid_stat:
         active: true
-        period: 2.0
+        period: 5.0
     net_dev:
         active: true
         period: 1.0
     net_snmp_udp:
         active: true
-        period: 1.0
+        period: 0.3
     net_udp4: &x
         active: true
-        period: 0.25
-    net_udp6:
-        <<: *x
+        period: 0.2
+    #net_udp6:
+    #    <<: *x
 """
 
 def env_expand(string):
@@ -81,7 +81,6 @@ def main():
 
     sp = parser.add_subparsers()
     sp_start = sp.add_parser('start', help='Start Tracer')
-    sp_start.add_argument('-f', '--foreground', action='store_true', help='Start Tracer in foreground, not daemonized.')
     sp_start.set_defaults(task='start')
 
     sp_stop = sp.add_parser('stop', help='Stop Tracer')
