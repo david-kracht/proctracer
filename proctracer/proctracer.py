@@ -12,14 +12,29 @@ import argparse
 import functools
 from daemonize import Daemonize
 
-sys.dont_write_bytecode = True
-
 try:
     from . import plugins
 except:
     import plugins
 
 from plugin_proc_tracer_base import ProcTracerBase
+
+import ctypes, threading
+LIB = 'libcap.so.2'
+try:
+    libcap = ctypes.CDLL(LIB)
+except OSError:
+    print(
+        'Library {} not found. Unable to set thread name.'.format(LIB)
+    )
+else:
+    def _name_hack(self):
+        # PR_SET_NAME = 15
+        libcap.prctl(15, self.name.encode())
+        threading.Thread._bootstrap_original(self)
+
+    threading.Thread._bootstrap_original = threading.Thread._bootstrap
+    threading.Thread._bootstrap = _name_hack
 
 DEFAULT_CONFIG_YAML_PATH = "~/proctracer-config.yaml"
 
@@ -31,19 +46,19 @@ pid_path: ~/proctracer.pid
 plugins:
     text_pipe:
         active: true
-        period: 0.1
+        period: 0.2
     pressure_cpu:
         active: true
-        period: 0.5
+        period: 1.0
     pressure_io:
         active: true
-        period: 0.5
+        period: 1.0
     pressure_memory:
         active: true
-        period: 0.5
+        period: 1.0
     stat:
         active: true
-        period: 5.0
+        period: 7.0
     pid_stat:
         active: true
         period: 5.0
@@ -52,12 +67,13 @@ plugins:
         period: 1.0
     net_snmp_udp:
         active: true
-        period: 0.3
-    net_udp4: &x
+        period: 0.2
+    net_udp4:
         active: true
         period: 0.2
-    #net_udp6:
-    #    <<: *x
+    net_udp6:
+        active: false
+        period: 0.2
 """
 
 def env_expand(string):

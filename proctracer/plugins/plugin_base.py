@@ -95,19 +95,3 @@ class PluginBase:
 
     def end(self):
         pass
-
-
-    # def periodicTaskFactory(self, period, function, args, kwargs ):
-
-    #     if self.name in self.taskPool:
-    #         self.taskPool[self.name]["pill2kill"].set()
-
-    #     pill2kill = threading.Event()
-
-    #     self.taskPool[self.name] = {
-    #         "pill2kill":pill2kill,
-    #         "thread":threading.Thread(name=self.name, target=self.task, args=( pill2kill, period,function, args, kwargs))
-    #         }
-
-    #     self.taskPool[self.name]["thread"].daemon = True
-    #     self.taskPool[self.name]["thread"].start()

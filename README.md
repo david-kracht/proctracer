@@ -1,50 +1,87 @@
-<picture>
-  <!-- These are also used for https://github.com/proctracer-io/.github/blob/main/profile/README.md 
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/proctracer-io/proctracer/develop2/.github/proctracer2-logo-for-dark.svg">
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/proctracer-io/proctracer/develop2/.github/proctracer2-logo-for-light.svg">
-  <img alt="JFrog | proctracer 2.0 Logo" src="https://raw.githubusercontent.com/proctracer-io/proctracer/develop2/.github/proctracer2-logo-with-bg.svg">
-  -->
-</picture>
-
 # /proc Tracer
 
-This is the **developer/maintainer** documentation. For user documentation, go to https://github.com/david-kracht/proctracer
-
+This is the developer/maintainer documentation. For user documentation, go to https://github.com/david-kracht/proctracer
 
 ## Setup
 
 You can run proctracer from source in Windows, MacOS, and Linux:
 
-- **Install pip following** [pip docs](https://pip.pypa.io/en/stable/installation/).
+- Install pip following [pip docs](https://pip.pypa.io/en/stable/installation/).
 
-- **Clone proctracer repository:**
+- Clone proctracer repository:
+```bash
+$ git clone https://github.com/david-kracht/proctracer.git
+```
 
-  ```bash
-  $ git clone https://github.com/david-kracht/proctracer.git
-  ```
+- Install in editable mode
+```bash
+$ cd proctracer && sudo pip install -e .
+```
 
-  > **Note**: repository directory name matters, some directories are known to be problematic to run tests (e.g. `proctracer`).
+- You are ready, try to run proctracer:
+```bash
+$  proctracer --help
+usage: /proc Tracer (Daemon) [-h] [-c CONFIG] [-o OUTPUT_PATH] [-n REPORT_NAME] [-f] {start,stop,restart,message} ...
 
-- **Install in editable mode**
+positional arguments:
+  {start,stop,restart,message}
+    start               Start Tracer
+    stop                Stop Tracer
+    restart             Restart Tracer
+    message             Message to Running Tracer
 
-  ```bash
-  $ cd proctracer && sudo pip install -e .
-  ```
+optional arguments:
+  -h, --help            show this help message and exit
+  -c CONFIG, --config CONFIG
+                        Path to /proc Tracer config yaml.
+  -o OUTPUT_PATH, --output_path OUTPUT_PATH
+                        Output path for report.
+  -n REPORT_NAME, --report_name REPORT_NAME
+                        Name of the report file.
+  -f, --foreground      Start Tracer in foreground, not daemonized.
+```
 
-  If you are in Windows, using ``sudo`` is not required.
+- Examplary usage and result:
+```bash
+$ proctracer -o ~/1/2 -n proc_report start
+Start /proc Tracer (Daemon)...
+Output will be written to: /root/1/2
 
-- **You are ready, try to run proctracer:**
+$ proctracer message first
+Message to running /proc Tracer (Daemon) ...
+$ proctracer message 2nd
+Message to running /proc Tracer (Daemon) ...
+$ proctracer message 2nd
+Message to running /proc Tracer (Daemon) ...
+$ proctracer message 3rd
+Message to running /proc Tracer (Daemon) ...
 
-  ```bash
-  $ proctracer --help
+$ stress -c 1 -t 5
+stress: info: [514601] dispatching hogs: 1 cpu, 0 io, 0 vm, 0 hdd
+stress: info: [514601] successful run completed in 5s
 
-  Consumer commands
-    install    Installs the requirements specified in a recipe (proctracerfile.py or proctracerfile.txt).
-    ...
+$ proctracer stop
+Stop /proc Tracer (Daemon).
 
-    proctracer commands. Type "proctracer <command> -h" for help
-  ```
+$ tree ~/1
+/home/user/1
+└── 2
+    └── proc_report.pdf
+```
 
-## License
+- Package and Upload
+Place token in ```~/.pypirc```, i.e
 
-[MIT LICENSE](LICENSE.md)
+> [pypi]
+> username = __token__
+> password = pypi-AgEIcHlwa0A5vasXU4w
+
+
+```bash
+$ chmod 600 ~/.pypirc
+
+$ sudo pip install twine
+
+$ python3 setup.py sdist bdist_wheel
+$ twine upload dist/*
+```

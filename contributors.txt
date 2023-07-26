@@ -1,5 +1,0 @@
-Contributors
--------------
-
-This is a very partial list of contributors to this project source code, in alphabetical order, those who
-explicitly wanted to add details here.

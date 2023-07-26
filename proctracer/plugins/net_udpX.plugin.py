@@ -8,7 +8,7 @@ class net_udp4(ProcTracerBase):
         super().__init__(
             config_yaml=config_yaml,
             file='/proc/net/udp',
-            key='sl',
+            key='inode',
             header_in='sl local_address rem_address st tx_queue:rx_queue tr:tm->when retrnsmt uid timeout inode ref pointer drops',
             first_line=1,
             patterns=''
@@ -31,13 +31,13 @@ class net_udp4(ProcTracerBase):
             new_sample[k] = {
                 self.key : k,
                 'time': entry['time'],
-                'socket': "%s -> %s" % ( self.convert_hex_socket(entry['local_address']),  self.convert_hex_socket(entry['rem_address']) ) ,
+                'socket': "%s -> %s (inode:%s)" % ( self.convert_hex_socket(entry['local_address']),  self.convert_hex_socket(entry['rem_address']), entry['inode'] ) ,
                 'tx_queue': int(h_tx_queue,16),
                 'rx_queue': int(h_rx_queue,16),
                 'drops': int(entry['drops']),
                 'drops-per-sec': 0.0 ,
                  }
-                 
+
             if k in self.sample_old:
                 new_sample[k]['drops-per-sec'] = 1.0*( new_sample[k]['drops'] - self.sample_old[k]['drops'] ) / ( new_sample[k]['time'] - self.sample_old[k]['time'] )
                 if new_sample[k]['drops-per-sec'] < 0:
@@ -144,7 +144,6 @@ class net_udp6(net_udp4):
     def __init__(self,config_yaml):
         super().__init__(config_yaml=config_yaml)
         self.file='/proc/net/udp6'
-        #self.diff_on = 'tx_queue rx_queue drops'.split()
 
     def convert_hex_socket(self, hex_socket):
         h_addr, h_port = hex_socket.split(':')

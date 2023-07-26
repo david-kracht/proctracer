@@ -10,9 +10,8 @@ class net_snmp_udp(ProcTracerBase):
             file='/proc/net/snmp',
             key='Protocol',
             header_in='Protocol InDatagrams NoPorts InErrors OutDatagrams RcvbufErrors SndbufErrors InCsumErrors IgnoredMulti MemErrors',
-            first_line=9,
-            last_line=10,
-            patterns='Udp:'
+            patterns='Udp:',
+            anti_patterns='InDatagrams'
             )
 
     def mapper(self, sample):

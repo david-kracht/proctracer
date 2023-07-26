@@ -27,7 +27,7 @@ class ProcTracerBase(PluginBase):
             for p in cls.instances:
                 cls.instances[p].add_diagrams(pdf, t)
 
-    def __init__(self, config_yaml, file, key, header_in, first_line=0, last_line=None, patterns=''):
+    def __init__(self, config_yaml, file, key, header_in, first_line=0, last_line=None, patterns='', anti_patterns=''):
         super().__init__(config_yaml)
         self.file=file
         self.key=key
@@ -35,6 +35,7 @@ class ProcTracerBase(PluginBase):
         self.first_line=first_line
         self.last_line=last_line
         self.patterns=patterns.split()
+        self.anti_patterns=anti_patterns.split()
         self.header_in = self.header_in.split()
         self.diff_on = ''
         self.proc_fds={}
@@ -90,7 +91,19 @@ class ProcTracerBase(PluginBase):
         if proc_data:
 
             for line in proc_data.splitlines()[self.first_line:self.last_line]:
-
+                
+                #blacklist
+                if ( len(self.anti_patterns) != 0 ):
+                    to_be_collected=True
+                    for pattern in self.anti_patterns:
+                        if pattern in line:
+                            to_be_collected = False
+                            break
+                
+                    if not to_be_collected:
+                        continue
+                
+                #whitelist
                 to_be_collected = ( len(self.patterns) == 0 )
 
                 if not to_be_collected:
@@ -98,7 +111,7 @@ class ProcTracerBase(PluginBase):
                         if pattern in line:
                             to_be_collected = True
                             break
-
+                
                 if to_be_collected:
                     line=self.pre_parsing_step(line)
                     

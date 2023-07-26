@@ -69,7 +69,7 @@ class pid_stat(ProcTracerBase):
                 if pid not in self.new_pid_map:
                     self.new_pid_map[pid] = {}
                     
-                self.new_pid_map[pid]["cmdline"]= proc_data[:-1].replace('\0', ' ').strip()
+                self.new_pid_map[pid]["cmdline"]= " ".join(proc_data[:-1].replace('\0', ' ').split())
             
             if not self.new_pid_map[pid]["cmdline"]:
                 continue

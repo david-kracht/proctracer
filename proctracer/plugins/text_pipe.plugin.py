@@ -75,7 +75,7 @@ class text_pipe(ProcTracerBase):
                 plt.xlabel("Time t [s]")
                 plt.ylabel("Events")
                 plt.yticks([])
-                plt.legend(title="Event Labels", fontsize='small', loc= 'upper right')
+                plt.legend(title="Event Labels", fontsize='small', loc= 'upper left')
                 
                 
 

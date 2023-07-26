@@ -64,7 +64,7 @@ setup(
     long_description_content_type='text/markdown',
 
     # The project's main homepage.
-    url='https://proctracer.io',
+    url='https://github.com/david-kracht/proctracer',
     project_urls={
         'Documentation': 'https://github.com/david-kracht/proctracer',
         'Source': 'https://github.com/david-kracht/proctracer.git',
@@ -77,6 +77,7 @@ setup(
 
     # Choose your license
     license='BSD-3',
+    license_files = ('LICENSE.md',), 
 
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
