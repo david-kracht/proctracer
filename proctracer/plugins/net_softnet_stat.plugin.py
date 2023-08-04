@@ -9,8 +9,7 @@ class net_softnet_stat(ProcTracerBase):
             config_yaml=config_yaml,
             file='/proc/net/softnet_stat',
             key='cpu',
-            header_in='packet_process packet_drop time_squeeze cpu_collision received_rps flow_limit_count softnet_backlog_len cpu',
-            first_line=0,
+            header_in='packet_process packet_drop time_squeeze -c4- -c5- -c6- -c7- -c8- cpu_collision received_rps flow_limit_count softnet_backlog_len cpu',
             patterns=''
             )
     '''
@@ -28,8 +27,8 @@ class net_softnet_stat(ProcTracerBase):
     def mapper(self, sample):
         new_sample={}
         for k,entry in sample.items():
-          
-            k=int(k,16)
+
+            k=int(entry['cpu'],16)
             
             new_sample[k] = {
                 self.key : k,
@@ -41,7 +40,6 @@ class net_softnet_stat(ProcTracerBase):
                 'received_rps' : int(entry['received_rps'],16),
                 'flow_limit_count': int(entry['flow_limit_count'],16),
                 'softnet_backlog_len' : int(entry['softnet_backlog_len'],16),
-                'cpu': int(entry['cpu'],16) ,
                 'packet_drop-per-sec' : 0.0
                 }
 
