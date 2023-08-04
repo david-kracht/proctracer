@@ -62,6 +62,7 @@ class net_udp4(ProcTracerBase):
                 '/proc/sys/net/core/rmem_max': "N/A",
                 '/proc/sys/net/core/wmem_default': "N/A",
                 '/proc/sys/net/core/wmem_max': "N/A",
+                '/proc/sys/net/core/netdev_max_backlog': "N/A",
                 }
         
         kernel_parameter_note=""

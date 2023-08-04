@@ -68,6 +68,9 @@ plugins:
     net_snmp_udp:
         active: true
         period: 0.2
+    net_softnet_stat:
+        active: true
+        period: 0.2
     net_udp4:
         active: true
         period: 0.2

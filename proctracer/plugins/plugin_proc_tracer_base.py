@@ -6,6 +6,8 @@ from matplotlib.backends.backend_pdf import PdfPages
 
 from plugin_base import PluginBase
 
+MAX_PROC_READ_RETRY=5
+
 class ProcTracerBase(PluginBase):
 
     t0=time.time()
@@ -61,6 +63,7 @@ class ProcTracerBase(PluginBase):
         if file not in self.proc_fds:
             try:
                 self.proc_fds[file] = open(file, 'r')
+                self.retry_read_counter = MAX_PROC_READ_RETRY
             except FileNotFoundError:
                 self.retry_read_counter -= 1
                 time.sleep(1)
