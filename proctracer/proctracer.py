@@ -96,6 +96,9 @@ def main():
     parser.add_argument('-f', '--foreground', action='store_true', help='Start Tracer in foreground, not daemonized.')
 
     sp = parser.add_subparsers()
+    sp_configure = sp.add_parser('configure', help='Configure Tracer (default: %s)' % DEFAULT_CONFIG_YAML_PATH)
+    sp_configure.set_defaults(task='configure')    
+    
     sp_start = sp.add_parser('start', help='Start Tracer')
     sp_start.set_defaults(task='start')
 
