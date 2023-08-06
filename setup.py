@@ -9,6 +9,7 @@ from setuptools import find_packages, setup
 
 import os
 import re
+import subprocess
 from os import path
 
 
@@ -33,8 +34,15 @@ def load_version():
     filename = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                             "proctracer", "__init__.py"))
     with open(filename, "rt") as version_file:
-        conan_init = version_file.read()
-        version = re.search(r"__version__ = '([0-9a-z.-]+)'", conan_init).group(1)
+        pkg_init = version_file.read()
+        version = re.search(r"__version__ = '([0-9a-z.-]+)'", pkg_init).group(1)
+        
+        tag = subprocess.check_output('git tag --points-at HEAD'.split())
+        commit_hash = subprocess.check_output('git rev-parse HEAD'.split()).decode('utf-8')
+
+        if not tag:
+            version="%s.dev-%s" % (version,commit_hash[0:8])
+        
         return version
 
 

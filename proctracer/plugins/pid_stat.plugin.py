@@ -127,6 +127,7 @@ class pid_stat(ProcTracerBase):
                 axs[0].plot( pivot_table_1[[i]].dropna() * 100.0, label="%s/%s/%s : %s" % (i,self.new_pid_map[i]['ppid'],self.new_pid_map[i]['pgrp'], self.new_pid_map[i]['cmdline'][0:99] ) )
                 axs[0].set_ylabel("Process Load [%]")
                 axs[0].legend(title="pid/ppid/pgrp: cmdline", fontsize='xx-small', loc= 'upper right')
+                axs[0].set_xticklabels([])
                 axs[0].grid()
                 axs[0].set_xlim(0,maxT)
                 axs[0].set_ylim(0,105.0)

@@ -94,6 +94,7 @@ class net_udp4(ProcTracerBase):
                 axs[0].legend(fontsize='xx-small', loc= 'upper right')
                  
             axs[0].set_ylabel('Size of tx/rx Queues')
+            axs[0].set_xticklabels([])
             axs[0].grid()
             axs[0].set_xlim(0,maxT)
             axs[0].set_ylim(0,maxV*1.05+0.01)
@@ -114,6 +115,7 @@ class net_udp4(ProcTracerBase):
                 axs[1].legend(fontsize='xx-small', loc= 'upper right')
             
             axs[1].set_ylabel('Packet Drops [count]')
+            axs[1].set_xticklabels([])
             axs[1].grid()
             axs[1].set_xlim(0,maxT)
             axs[1].set_ylim(0,maxV*1.05+0.01)

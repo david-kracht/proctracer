@@ -1,3 +1,4 @@
+from math import sqrt
 from matplotlib import pyplot as plt
 
 from plugin_proc_tracer_base import ProcTracerBase
@@ -8,45 +9,37 @@ class net_softnet_stat(ProcTracerBase):
         super().__init__(
             config_yaml=config_yaml,
             file='/proc/net/softnet_stat',
-            key='cpu',
-            header_in='packet_process packet_drop time_squeeze -c4- -c5- -c6- -c7- -c8- cpu_collision received_rps flow_limit_count softnet_backlog_len cpu',
+            key='index',
+            header_in='processed dropped time_squeeze -c4- -c5- -c6- -c7- -c8- -c9- received_rps flow_limit_count softnet_backlog_len index',
             patterns=''
             )
     '''
     https://insights-core.readthedocs.io/en/latest/shared_parsers_catalog/softnet_stat.html
-    Column-01: packet_process: Packet processed by each CPU.
-    Column-02: packet_drop: Packets dropped.
-    Column-03: time_squeeze: net_rx_action.
-    Column-09: cpu_collision: collision occur while obtaining device lock while transmitting.
-    Column-10: received_rps: number of times cpu woken up received_rps.
-    Column-11: flow_limit_count: number of times reached flow limit count.
-    Column-12: softnet_backlog_len: Backlog status
-    Column-13: index: core id owning this softnet_data
+    sd->processed, is the number of network frames processed. This can be more than the total number of network frames received if you are using ethernet bonding. There are cases where the ethernet bonding driver will trigger network data to be re-processed, which would increment the sd->processed count more than once for the same packet.
+    sd->dropped, is the number of network frames dropped because there was no room on the processing queue. More on this later.
+    sd->time_squeeze, is (as we saw) the number of times the net_rx_action loop terminated because the budget was consumed or the time limit was reached, but more work could have been. Increasing the budget as explained earlier can help reduce this.
+    The next 5 values are always 0.
+    sd->cpu_collision, is a count of the number of times a collision occurred when trying to obtain a device lock when transmitting packets. This article is about receive, so this statistic will not be seen below.
+    sd->received_rps, is a count of the number of times this CPU has been woken up to process packets via an Inter-processor Interrupt
+    flow_limit_count, is a count of the number of times the flow limit has been reached. Flow limiting is an optional Receive Packet Steering feature that will be examined shortly.
     '''
     
     def mapper(self, sample):
         new_sample={}
         for k,entry in sample.items():
 
-            k=int(entry['cpu'],16)
+            k=int(entry['index'],16)
             
             new_sample[k] = {
                 self.key : k,
                 'time': entry['time'],
-                'packet_process' : int(entry['packet_process'],16),
-                'packet_drop': int(entry['packet_drop'],16),
+                'processed' : int(entry['processed'],16),
+                'dropped': int(entry['dropped'],16),
                 'time_squeeze': int(entry['time_squeeze'],16),
-                'cpu_collision' : int(entry['cpu_collision'],16),
                 'received_rps' : int(entry['received_rps'],16),
                 'flow_limit_count': int(entry['flow_limit_count'],16),
                 'softnet_backlog_len' : int(entry['softnet_backlog_len'],16),
-                'packet_drop-per-sec' : 0.0
                 }
-
-            if k in self.sample_old:
-                new_sample[k]['packet_drop-per-sec'] = 1.0*( new_sample[k]['packet_drop'] - self.sample_old[k]['packet_drop'] ) / ( new_sample[k]['time'] - self.sample_old[k]['time'] )
-                if new_sample[k]['packet_drop-per-sec'] < 0:
-                    new_sample[k]['packet_drop-per-sec']=0
                     
         return new_sample
 
@@ -55,71 +48,39 @@ class net_softnet_stat(ProcTracerBase):
         plt.clf()
         # Creating figure
         cm = 1/2.54                                         # centimeters in inches
-        fig, axs = plt.subplots(3, dpi=72, figsize=(29.7*cm,21.0*cm))   # for landscape DIN A4
+        fig, axs = plt.subplots(6, dpi=72, figsize=(29.7*cm,21.0*cm))   # for landscape DIN A4
 
         fig.suptitle('%s' % self.file )
 
         if not self.data_frame.empty:
             
             pivot_table=[]
-            
-            ######### 
-            maxV=0
-            for value in 'packet_process'.split():
-                pivot_table = self.data_frame.pivot_table(index='time', columns=['cpu'], values=value)
-                pivot_table -= pivot_table.iloc[0].values.squeeze() # relative count wrt. start time
-                pivot_table = pivot_table.loc[:, (pivot_table > 0).any()]
-                
+            i=0
+            values = 'processed dropped time_squeeze received_rps flow_limit_count softnet_backlog_len'.split()
+            for value in values:
+           
+                maxV=0
+                pivot_table = self.data_frame.pivot_table(index='time', columns=['index'], values=value)
+                if i == 0:
+                    pivot_table -= pivot_table.iloc[0].values.squeeze() # relative count wrt. start time
+                                    
                 maxV=max(maxV, pivot_table.max(axis=1).max(axis=0))
                 
-                for i in pivot_table.columns:
-                    axs[0].plot( pivot_table[[i]].dropna(), label="%s , %s" % (i, value ) )
+                for j in pivot_table.columns:
+                    axs[i].plot( pivot_table[[j]].dropna(), label="cpu%s" % j )
                 
-            if not pivot_table.columns.empty:
-                axs[0].legend(fontsize='xx-small', loc= 'upper right')
-                 
-            axs[0].set_ylabel('Packets [count]')
-            axs[0].grid()
-            axs[0].set_xlim(0,maxT)
-            axs[0].set_ylim(0,maxV*1.05+0.01)
-
-            ######### 
-            maxV=0
-            for value in ['packet_drop']:
-                pivot_table = self.data_frame.pivot_table(index='time', columns=['cpu'], values=value)
-                pivot_table -= pivot_table.iloc[0].values.squeeze() # relative count wrt. start time
-                pivot_table = pivot_table.loc[:, (pivot_table > 0).any()]
+                axs[i].set_ylabel('%s' % value, fontsize='x-small', rotation=0)
+                axs[i].grid()
                 
-                maxV=max(maxV, pivot_table.max(axis=1).max(axis=0))
+                if (i+1)<len(values):
+                    axs[i].set_xticklabels([])
+                else:
+                    axs[i].legend(ncol=int(sqrt(len(pivot_table.columns))) , fontsize='xx-small', loc= 'upper right')
+                    axs[i].set_xlabel("Time t [s]")
                 
-                for i in pivot_table.columns:
-                    axs[1].plot( pivot_table[[i]].dropna(), label=i )
-            
-            if not pivot_table.columns.empty:
-                axs[1].legend(fontsize='xx-small', loc= 'upper right')
-            
-            axs[1].set_ylabel('Packet Drops [count]')
-            axs[1].grid()
-            axs[1].set_xlim(0,maxT)
-            axs[1].set_ylim(0,maxV*1.05+0.01)
-            
-            #########
-            maxV=0
-            for value in ['flow_limit_count', 'softnet_backlog_len']:
-                pivot_table = self.data_frame.pivot_table(index='time', columns=['cpu'], values=value)
-                pivot_table = pivot_table.loc[:, (pivot_table > 0).any()]
-                maxV=max(maxV, pivot_table.max(axis=1).max(axis=0))
+                axs[i].set_xlim(0,maxT)
+                axs[i].set_ylim(0,maxV*1.05+0.01)
                 
-                for i in pivot_table.columns:
-                    axs[2].plot( pivot_table[[i]].dropna(), label=i )
-
-            if not pivot_table.columns.empty:
-                axs[2].legend(fontsize='xx-small', loc= 'upper right')
-
-            axs[2].set_xlabel('Time t [s]')
-            axs[2].set_ylabel('Counts / Length ')
-            axs[2].grid()
-            axs[2].set_xlim(0,maxT)
-            axs[2].set_ylim(0,maxV*1.05+0.01)
+                i+=1
 
         pdf.savefig(fig)

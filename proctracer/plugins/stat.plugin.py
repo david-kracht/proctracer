@@ -53,6 +53,7 @@ class stat(ProcTracerBase):
             axs[0].plot( pivot_table[['cpu']].dropna() *100, label='cpu' )
             axs[0].legend(fontsize='small', loc= 'upper right')
             axs[0].set_ylabel('CPU Load [%]')
+            axs[0].set_xticklabels([])
             axs[0].grid()
             axs[0].set_xlim(0,maxT)
             axs[0].set_ylim(0,105.0)

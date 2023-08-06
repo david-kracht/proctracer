@@ -60,6 +60,7 @@ class net_snmp_udp(ProcTracerBase):
             axs[1].legend()
                 
             axs[1].set_ylabel('Ratio [%]')
+            axs[1].set_xticklabels([])
             axs[1].grid()
             axs[1].set_xlim(0,maxT)
             axs[1].set_ylim(0,None)
@@ -71,6 +72,7 @@ class net_snmp_udp(ProcTracerBase):
             axs[2].legend()
                 
             axs[2].set_ylabel('Ratio [%]')
+            axs[2].set_xlabel("Time t [s]")
             axs[2].grid()
             axs[2].set_xlim(0,maxT)
             axs[2].set_ylim(0,None)
@@ -82,6 +84,7 @@ class net_snmp_udp(ProcTracerBase):
             axs[0].legend()
                 
             axs[0].set_ylabel('Datagrams [count]')
+            axs[0].set_xticklabels([])
             axs[0].grid()
             axs[0].set_xlim(0,maxT)
             axs[0].set_ylim(0,None)

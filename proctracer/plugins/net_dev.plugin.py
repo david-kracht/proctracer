@@ -65,6 +65,7 @@ class net_dev(ProcTracerBase):
                 axs[0].legend(title="interface: [tx,rx]", fontsize='small', loc= 'upper right')
                 
             axs[0].set_ylabel('Byte-Rate [1/s]')
+            axs[0].set_xticklabels([])
             axs[0].grid()
             axs[0].set_xlim(0,maxT)
             axs[0].set_ylim(0,None)

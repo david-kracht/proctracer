@@ -172,7 +172,7 @@ if __name__ == '__main__':
     main()
 
 '''
-benchmark: python3 -m cProfile -s tottime ./proctracer.py
+benchmark: python3 -m cProfile -s tottime ./proctracer.py -f start
 
 iperf -u -sS
 iperf -u -c 0.0.0.0 -t 60 -b 50G
