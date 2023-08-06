@@ -41,7 +41,7 @@ def load_version():
         commit_hash = subprocess.check_output('git rev-parse HEAD'.split()).decode('utf-8')
 
         if not tag:
-            version="%s.dev-%s" % (version,commit_hash[0:8])
+            version="%s-%s" % (version,commit_hash[0:8])
         
         return version
 
