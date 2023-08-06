@@ -63,7 +63,9 @@ class net_softnet_stat(ProcTracerBase):
                 pivot_table = self.data_frame.pivot_table(index='time', columns=['index'], values=value)
                 if i == 0:
                     pivot_table -= pivot_table.iloc[0].values.squeeze() # relative count wrt. start time
-                                    
+                
+                pivot_table = pivot_table.loc[:, (pivot_table > 0).any()]
+                
                 maxV=max(maxV, pivot_table.max(axis=1).max(axis=0))
                 
                 for j in pivot_table.columns:
@@ -75,11 +77,12 @@ class net_softnet_stat(ProcTracerBase):
                 if (i+1)<len(values):
                     axs[i].set_xticklabels([])
                 else:
-                    axs[i].legend(ncol=int(sqrt(len(pivot_table.columns))) , fontsize='xx-small', loc= 'upper right')
                     axs[i].set_xlabel("Time t [s]")
-                
+                    
+                axs[i].legend(ncol=int(sqrt(len(pivot_table.columns))) , fontsize='xx-small', loc= 'upper right')
+                axs[i].set_yscale('log')
                 axs[i].set_xlim(0,maxT)
-                axs[i].set_ylim(0,maxV*1.05+0.01)
+                axs[i].set_ylim(None,maxV*1.05+0.01)
                 
                 i+=1
 
