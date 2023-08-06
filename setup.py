@@ -38,8 +38,9 @@ def load_version():
         version = re.search(r"__version__ = '([0-9a-z.-]+)'", pkg_init).group(1)
         
         tag = subprocess.check_output('git tag --points-at HEAD'.split())
-        counter = subprocess.check_output('git rev-list --count origin/main'.split())
-        print('####', tag, counter)
+        subprocess.check_output('git fetch --unshallow'.split())
+        counter = subprocess.check_output('git rev-list --count HEAD'.split())
+        
         if not tag:
             version="%s.dev%s" % (version, int(counter) )
         
