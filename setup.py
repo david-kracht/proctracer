@@ -39,7 +39,7 @@ def load_version():
         
         tag = subprocess.check_output('git tag --points-at HEAD'.split())
         counter = subprocess.check_output('git rev-list --all --count HEAD'.split())
-
+        print('####', tag, counter)
         if not tag:
             version="%s.dev%s" % (version, int(counter) )
         
