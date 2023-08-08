@@ -71,6 +71,8 @@ class net_softnet_stat(ProcTracerBase):
                 for j in pivot_table.columns:
                     axs[i].plot( pivot_table[[j]].dropna(), label="cpu%s" % j )
                 
+                if axs[i].lines:
+                    axs[i].legend(title="cpu", ncol=int(sqrt(len(pivot_table.columns))) , fontsize='xx-small', loc= 'upper right')
                 axs[i].set_ylabel('%s' % value, fontsize='x-small', rotation=0)
                 axs[i].grid()
                 
@@ -78,8 +80,8 @@ class net_softnet_stat(ProcTracerBase):
                     axs[i].set_xticklabels([])
                 else:
                     axs[i].set_xlabel("Time t [s]")
-                    
-                axs[i].legend(ncol=int(sqrt(len(pivot_table.columns))) , fontsize='xx-small', loc= 'upper right')
+                
+                
                 axs[i].set_yscale('log')
                 axs[i].set_xlim(0,maxT)
                 axs[i].set_ylim(None,maxV*1.05+0.01)

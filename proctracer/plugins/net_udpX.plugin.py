@@ -91,7 +91,8 @@ class net_udp4(ProcTracerBase):
                     axs[0].plot( pivot_table[[i]].dropna(), label="%s , %s" % (i, value ) )
                 
             
-            axs[0].legend(fontsize='xx-small', loc= 'upper right')   
+            if axs[0].lines:
+                axs[0].legend(title="Queues", fontsize='xx-small', loc= 'upper right')   
             axs[0].set_ylabel('Size of tx/rx Queues')
             axs[0].set_xticklabels([])
             axs[0].grid()
@@ -110,8 +111,8 @@ class net_udp4(ProcTracerBase):
                 for i in pivot_table.columns:
                     axs[1].plot( pivot_table[[i]].dropna(), label=i )
             
-            
-            axs[1].legend(fontsize='xx-small', loc= 'upper right')
+            if axs[1].lines:
+                axs[1].legend(title=" ", fontsize='xx-small', loc= 'upper right')
             axs[1].set_ylabel('Packet Drops [count]')
             axs[1].set_xticklabels([])
             axs[1].grid()
@@ -127,8 +128,9 @@ class net_udp4(ProcTracerBase):
                 
                 for i in pivot_table.columns:
                     axs[2].plot( pivot_table[[i]].dropna(), label=i )
-
-            axs[2].legend(fontsize='xx-small', loc= 'upper right')
+            
+            if axs[2].lines:
+                axs[2].legend(title=" ", fontsize='xx-small', loc= 'upper right')
             axs[2].set_xlabel('Time t [s]')
             axs[2].set_ylabel('Packet Drop Rate [1/s]')
             axs[2].grid()
